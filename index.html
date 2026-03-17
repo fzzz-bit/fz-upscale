@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fizzhh HD Up-Scaler</title>
+    <style>
+        body { font-Mono Upper: 'Courier New', Courier, monospace; background: #000; color: #000; text-align: center; padding: 20px; }
+        .box { border: 2px solid #000; background: #2596be; padding: 20px; display: inline-block; border-radius: 10px; box-shadow: 0 0 15px #67bed9; }
+        input, button { margin: 10px; padding: 10px; border-radius: 5px; border: 1px solid #2596be; background: #ffffff; color: #000; font-weight: bold; }
+        button:hover { background: #67bed9; color: #000; cursor: pointer; }
+        img { max-width: 90%; border: 1px dashed #2596be; margin-top: 15px; }
+        #loading { display: none; color: white; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2> Upscale image By ©Fizzhh </h2>
+        <p>Upload File JPG/PNG buat dijadiin HD:</p>
+        
+        <input type="file" id="fileInput" accept="image/*">
+        <br>
+        <button onclick="uploadAndUpscale()">PROSES JADI HD</button>
+
+        <div id="loading">Tunggu bentar lagi di hdin fotonya</div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function uploadAndUpscale() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            const loading = document.getElementById('loading');
+
+            if (fileInput.files.length === 0) return alert("Pilih filenya dulu kocak lu mau hd in apaan kalo gaada fotonya");
+
+            const imageFile = fileInput.files[0];
+            loading.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            const formData = new FormData();
+            formData.append("upscale_factor", "x2");
+            formData.append("image", imageFile); // Langsung kirim filenya di sini
+
+            try {
+                const response = await fetch("https://api.picsart.io/tools/1.0/upscale", {
+                    method: "POST",
+                    headers: {
+                        "accept": "application/json",
+                        "x-picsart-api-key": "paat-RTd7hVKvqqWRi2SaQyuAH9l284c" // Key lo tadi
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                if (data.status === "success") {
+                    resultDiv.innerHTML = `
+                        <p>BERHASIL! Klik kanan/tahan gambar buat simpan:</p>
+                        <img src="${data.data.url}" alt="Hasil HD">
+                        <br>
+                        <a href="${data.data.url}" target="_blank"><button>BUKA FULL SIZE</button></a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red">Gagal: ${data.message}</p>`;
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                alert("Koneksi Error/CORS Blocked. Coba pakai VPN atau buka di laptop!");
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
